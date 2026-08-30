@@ -1,0 +1,130 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ── Brand tokens ─────────────────────────────────────────────────────────── */
+:root {
+  --brand-50:  #eef2ff;
+  --brand-100: #e0e7ff;
+  --brand-200: #c7d2fe;
+  --brand-400: #818cf8;
+  --brand-500: #6366f1;
+  --brand-600: #4f46e5;
+  --brand-700: #4338ca;
+  --brand-800: #3730a3;
+  --brand-900: #312e81;
+
+  /* Legacy wood tokens kept so any leftover refs don't break */
+  --wood-500: #c97f28;
+  --wood-700: #7d481a;
+  --wood-dark: #2a1a0e;
+}
+
+/* ── Base ─────────────────────────────────────────────────────────────────── */
+@layer base {
+  html { scroll-behavior: smooth; }
+  body {
+    @apply text-slate-900 antialiased;
+    font-family: var(--font-inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif);
+    /* Soft, premium canvas with subtle depth (lifts every dashboard at once) */
+    background-color: #f6f7fb;
+    background-image:
+      radial-gradient(1200px 600px at 100% -10%, rgba(99,102,241,0.06) 0px, transparent 60%),
+      radial-gradient(900px 500px at -10% 110%, rgba(200,162,75,0.07) 0px, transparent 55%);
+    background-attachment: fixed;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+    line-height: 1.55;
+  }
+  h1, h2, h3 {
+    font-family: var(--font-playfair, 'Space Grotesk', ui-sans-serif, system-ui, sans-serif);
+    @apply tracking-tight text-slate-900;
+  }
+  ::selection { background: rgba(99,102,241,0.18); }
+}
+
+/* ── Components ───────────────────────────────────────────────────────────── */
+@layer components {
+  .btn-primary {
+    @apply inline-flex items-center justify-center gap-2 bg-indigo-600 hover:bg-indigo-700 active:scale-[0.98] text-white font-semibold px-6 py-3 rounded-xl transition-all shadow-sm hover:shadow cursor-pointer;
+  }
+  .btn-secondary {
+    @apply inline-flex items-center justify-center gap-2 bg-white hover:bg-slate-50 active:scale-[0.98] text-slate-800 font-semibold px-6 py-3 rounded-xl border border-slate-300 transition-all cursor-pointer;
+  }
+  .btn-ghost {
+    @apply text-slate-600 hover:text-indigo-700 hover:bg-indigo-50 font-medium px-4 py-2 rounded-lg transition-all cursor-pointer;
+  }
+  .card {
+    @apply bg-white border border-slate-200/80 rounded-2xl transition-all;
+    box-shadow: 0 1px 2px rgba(16,24,40,0.04), 0 4px 16px rgba(16,24,40,0.04);
+  }
+  .card:hover {
+    box-shadow: 0 2px 4px rgba(16,24,40,0.06), 0 12px 28px rgba(16,24,40,0.08);
+    @apply border-slate-300/80;
+  }
+  /* Consistent dashboard width + breathing room across every page */
+  .page-shell {
+    @apply max-w-6xl mx-auto px-4 sm:px-6 lg:px-8;
+  }
+  .badge-verified {
+    @apply inline-flex items-center gap-1 bg-emerald-100 text-emerald-800 text-xs font-semibold px-2.5 py-1 rounded-full;
+  }
+  .section-heading {
+    @apply text-3xl md:text-4xl font-bold text-slate-900;
+    font-family: var(--font-playfair, 'Space Grotesk', ui-sans-serif, system-ui, sans-serif);
+  }
+  .input-field {
+    @apply w-full border border-slate-300 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-200 focus:border-indigo-400 transition-all bg-white;
+  }
+  .select-field {
+    @apply input-field appearance-none cursor-pointer;
+  }
+}
+
+/* ── Utilities ────────────────────────────────────────────────────────────── */
+@layer utilities {
+  .text-balance { text-wrap: balance; }
+
+  /* Corporate gradient mesh used on the hero */
+  .bg-mesh {
+    background-color: #0f172a;
+    background-image:
+      radial-gradient(at 20% 20%, rgba(99, 102, 241, 0.45) 0px, transparent 50%),
+      radial-gradient(at 80% 0%,  rgba(59, 130, 246, 0.35) 0px, transparent 50%),
+      radial-gradient(at 80% 80%, rgba(139, 92, 246, 0.35) 0px, transparent 50%),
+      radial-gradient(at 0% 100%, rgba(14, 165, 233, 0.35) 0px, transparent 50%);
+  }
+  .bg-mesh-soft {
+    background-color: #f8fafc;
+    background-image:
+      radial-gradient(at 10% 0%,   rgba(199, 210, 254, 0.5) 0px, transparent 50%),
+      radial-gradient(at 90% 100%, rgba(186, 230, 253, 0.5) 0px, transparent 50%);
+  }
+
+  /* Subtle grid for the hero */
+  .bg-grid {
+    background-image:
+      linear-gradient(to right, rgba(255,255,255,0.06) 1px, transparent 1px),
+      linear-gradient(to bottom, rgba(255,255,255,0.06) 1px, transparent 1px);
+    background-size: 56px 56px;
+  }
+
+  .animate-fade-in-up { animation: fadeInUp 0.7s ease-out both; }
+  .line-clamp-2 {
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+  }
+}
+
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ── Scrollbar ────────────────────────────────────────────────────────────── */
+::-webkit-scrollbar { width: 8px; height: 8px; }
+::-webkit-scrollbar-track { background: #f1f5f9; }
+::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+::-webkit-scrollbar-thumb:hover { background: #94a3b8; }

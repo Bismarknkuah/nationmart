@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512" role="img" aria-label="NationMart">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#0a6e43"/>
+      <stop offset="1" stop-color="#02502f"/>
+    </linearGradient>
+    <clipPath id="awn"><path d="M120 196 h272 v44 l-34 28 l-34 -28 l-34 28 l-34 -28 l-34 28 l-34 -28 l-34 28 v-72 z"/></clipPath>
+  </defs>
+
+  <!-- full-bleed green background (maskable-safe) -->
+  <rect width="512" height="512" fill="url(#bg)"/>
+
+  <!-- store body (cream) -->
+  <rect x="150" y="252" width="212" height="140" rx="10" fill="#F9F6EF"/>
+  <!-- green arched doorway -->
+  <path d="M226 392 v-56 a30 30 0 0 1 60 0 v56 z" fill="#0a6e43"/>
+  <!-- windows (pale gold) -->
+  <rect x="170" y="300" width="42" height="40" rx="6" fill="#FBE38A"/>
+  <rect x="300" y="300" width="42" height="40" rx="6" fill="#FBE38A"/>
+
+  <!-- awning: red base with gold stripes, scalloped bottom -->
+  <g clip-path="url(#awn)">
+    <rect x="120" y="188" width="272" height="92" fill="#CE1126"/>
+    <g fill="#FCD116">
+      <rect x="154" y="188" width="34" height="92"/>
+      <rect x="222" y="188" width="34" height="92"/>
+      <rect x="290" y="188" width="34" height="92"/>
+      <rect x="358" y="188" width="34" height="92"/>
+    </g>
+  </g>
+
+  <!-- gold roundel with Ghana black star on the roof -->
+  <circle cx="256" cy="120" r="50" fill="#FCD116"/>
+  <polygon points="256,86 263.6,109.5 288.3,109.5 268.4,124.0 276.0,147.5 256,133 236.0,147.5 243.6,124.0 223.7,109.5 248.4,109.5" fill="#000000"/>
+</svg>

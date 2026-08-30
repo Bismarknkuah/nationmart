@@ -1,0 +1,15 @@
+{
+  "name": "NationMart",
+  "short_name": "NationMart",
+  "description": "Open your own store, shop from local sellers, and get items delivered — Ghana's national marketplace.",
+  "theme_color": "#0a6e43",
+  "background_color": "#F9F6EF",
+  "display": "standalone",
+  "scope": "/",
+  "start_url": "/",
+  "icons": [
+    { "src": "/favicon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable" },
+    { "src": "/icon.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "/apple-icon.png", "sizes": "180x180", "type": "image/png", "purpose": "any" }
+  ]
+}

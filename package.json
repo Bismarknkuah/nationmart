@@ -1,0 +1,6 @@
+{
+  "name": "nationmart",
+  "version": "1.0.0",
+  "private": true,
+  "description": "NationMart — root scaffolding (backend and frontend live in their own folders)"
+}
