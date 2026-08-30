@@ -130,7 +130,7 @@ export default function HomePage() {
   const [products, setProducts] = useState<any[]>([]);
   const [stores, setStores] = useState<any[]>([]);
   const [categories, setCategories] = useState<any[]>(
-    STORE_CATEGORIES.map((c) => ({ value: c.value, label: c.label, tagline: c.tagline, imageUrl: '', iconPath: c.iconPath, swatch: c.swatch })),
+    (STORE_CATEGORIES || []).map((c) => ({ value: c.value, label: c.label, tagline: c.tagline, imageUrl: '', iconPath: c.iconPath, swatch: c.swatch })),
   );
   const [loading, setLoading] = useState(true);
 
@@ -143,7 +143,17 @@ export default function HomePage() {
       if (pRes.status === 'fulfilled') setProducts((pRes.value as any).products?.slice(0, 8) || []);
       if (sRes.status === 'fulfilled') setStores((sRes.value as any).stores?.slice(0, 6) || []);
       if (cRes.status === 'fulfilled' && (cRes.value as any).categories?.length) {
-        setCategories((cRes.value as any).categories);
+        // Only take well-formed category rows. A row missing `value`/`label`
+        // would otherwise break the category grid downstream.
+        const clean = ((cRes.value as any).categories as any[]).filter(
+          (c) => c && (c.value ?? c.key) && (c.label ?? c.name),
+        ).map((c) => ({
+          value: c.value ?? c.key,
+          label: c.label ?? c.name,
+          tagline: c.tagline ?? '',
+          imageUrl: c.imageUrl ?? '',
+        }));
+        if (clean.length) setCategories(clean);
       }
       setLoading(false);
     });

@@ -148,11 +148,15 @@ const CATEGORY_KEYWORDS: Record<string, string> = {
 };
 
 /** A real, themed photo URL for a store type (free keyword photo service). */
-export function categoryImage(value: string): string {
-  const kw = CATEGORY_KEYWORDS[value] || 'shop';
+export function categoryImage(value?: string | null): string {
+  // A category coming from the API may be missing its `value` field. Reading
+  // `.length` / `.charCodeAt` on undefined here throws inside the caller's
+  // `.map`, which used to take the whole home page down. Fall back safely.
+  const safe = value || 'general';
+  const kw = CATEGORY_KEYWORDS[safe] || 'shop';
   // `lock` pins a stable image per type so it doesn't change on each load.
   let lock = 0;
-  for (let i = 0; i < value.length; i++) lock = (lock * 31 + value.charCodeAt(i)) % 1000;
+  for (let i = 0; i < safe.length; i++) lock = (lock * 31 + safe.charCodeAt(i)) % 1000;
   return `https://loremflickr.com/640/360/${encodeURIComponent(kw)}?lock=${lock}`;
 }
 
@@ -161,6 +165,8 @@ export const STORE_CATEGORY_MAP: Record<string, StoreCategory> = Object.fromEntr
 );
 
 // Small reusable inline-SVG component data shape
-export function categoryIcon(value: string): string {
-  return STORE_CATEGORY_MAP[value]?.iconPath || STORE_CATEGORY_MAP.general.iconPath;
+export function categoryIcon(value?: string | null): string {
+  return STORE_CATEGORY_MAP[value || '']?.iconPath
+    || STORE_CATEGORY_MAP.general?.iconPath
+    || '';
 }
