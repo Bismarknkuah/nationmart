@@ -11,7 +11,7 @@
     "create-admin": "ts-node src/scripts/createSuperAdmin.ts",
     "test": "jest --runInBand",
     "test:ci": "jest --ci --runInBand",
-    "db:deploy": "psql \"$DATABASE_URL\" -v ON_ERROR_STOP=1 -f ../postgres/001_money_core.sql -f ../postgres/002_commerce_core.sql -f ../postgres/003_platform.sql -f ../postgres/004_users_identity.sql -f ../postgres/005_store_product_extras.sql -f ../postgres/006_disputes.sql -f ../postgres/007_search.sql -f ../postgres/008_payment_methods.sql",
+    "db:deploy": "psql \"$DATABASE_URL\" -v ON_ERROR_STOP=1 -f ../postgres/001_money_core.sql -f ../postgres/002_commerce_core.sql -f ../postgres/003_platform.sql -f ../postgres/004_users_identity.sql -f ../postgres/005_store_product_extras.sql -f ../postgres/006_disputes.sql -f ../postgres/007_search.sql -f ../postgres/008_payment_methods.sql -f ../postgres/009_ads.sql",
     "db:reset": "psql \"$DATABASE_URL\" -c \"DROP SCHEMA public CASCADE; CREATE SCHEMA public;\" && npm run db:deploy",
     "seed:demo": "ts-node src/scripts/seedDemo.ts"
   },

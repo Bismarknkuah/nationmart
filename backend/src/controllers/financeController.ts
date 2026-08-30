@@ -37,6 +37,31 @@ export const payout = async (req: AuthRequest, res: Response): Promise<void> => 
   } catch (err: any) { res.status(500).json({ error: err.message }); }
 };
 
+// ─── Payment management console ──────────────────────────────────────────────
+import { paymentOverview, recentTransactions } from '../repos/paymentRepo';
+import { inFlight as payoutsInFlight } from '../repos/payoutRepo';
+
+/** GET /api/finance/payments/overview — the money dashboard. */
+export const paymentsOverview = async (req: AuthRequest, res: Response): Promise<void> => {
+  try {
+    if (!isFinance(req.user.role)) { res.status(403).json({ error: 'Finance access required.' }); return; }
+    const [overview, inFlight] = await Promise.all([paymentOverview(), payoutsInFlight()]);
+    res.json({ ...overview, inFlight });
+  } catch (err: any) { res.status(500).json({ error: err.message }); }
+};
+
+/** GET /api/finance/payments/transactions — the recent-payments feed. */
+export const paymentsFeed = async (req: AuthRequest, res: Response): Promise<void> => {
+  try {
+    if (!isFinance(req.user.role)) { res.status(403).json({ error: 'Finance access required.' }); return; }
+    const txns = await recentTransactions({
+      status: req.query.status as string | undefined,
+      limit: req.query.limit ? Number(req.query.limit) : undefined,
+    });
+    res.json({ transactions: txns });
+  } catch (err: any) { res.status(500).json({ error: err.message }); }
+};
+
 export {
   listSalaryStructure, upsertSalaryStructure, payOfficer,
   listSalaryPayments, bulkPayOfficers,

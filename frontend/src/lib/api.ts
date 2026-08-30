@@ -311,6 +311,46 @@ export const licensesAPI = {
 // ═════════════════════════════════════════════════════════════════════════════
 // ADMIN
 // ═════════════════════════════════════════════════════════════════════════════
+export const adsAPI = {
+  mine: () => request<{ ads: any[] }>('/api/ads/mine'),
+  create: (body: { title: string; budget: number; billKind?: 'per_impression' | 'per_click'; placement?: string; productId?: string; storeId?: string; targetCategory?: string; targetRegion?: string; keywords?: string; unitCost?: number }) =>
+    request<{ ad: any; message: string }>('/api/ads', { method: 'POST', body: JSON.stringify(body) }),
+  pause: (id: string) => request<{ message: string }>(`/api/ads/${id}/pause`, { method: 'POST' }),
+  resume: (id: string) => request<{ ad: any; message: string }>(`/api/ads/${id}/resume`, { method: 'POST' }),
+  cancel: (id: string) => request<{ refunded: number; message: string }>(`/api/ads/${id}/cancel`, { method: 'POST' }),
+  serve: (placement: string, category?: string) => request<{ ads: any[] }>(`/api/ads/serve${qs({ placement, category })}`),
+  adminOverview: () => request<{ summary: any; campaigns: any[] }>('/api/ads/admin/overview'),
+};
+
+export const paymentMgmtAPI = {
+  overview: () =>
+    request<{
+      gmv: number; totalIn: number; commissionEarned: number; refunded: number; escrowHeld: number;
+      payouts: { inFlightValue: number; inFlightCount: number; paidOut: number; failed: number };
+      counts: { paid: number; pending: number; failed: number; refunded: number };
+      channels: { channel: string; count: number; value: number }[];
+      inFlight: any[];
+    }>('/api/office/finance/payments/overview'),
+
+  transactions: (status?: string, limit = 30) =>
+    request<{ transactions: any[] }>(`/api/office/finance/payments/transactions${qs({ status, limit })}`),
+
+  integrity: () =>
+    request<{ ok: boolean; driftCount: number; drift: any[] }>('/api/office/finance/integrity'),
+};
+
+export const promosAdminAPI = {
+  overview: (scope: 'platform' | 'all' = 'platform') =>
+    request<{ promos: any[]; summary: { total: number; live: number; redemptions: number } }>(
+      `/api/promos/overview${qs({ scope })}`),
+
+  createCampaign: (body: { code: string; discountPercent?: number; discountAmount?: number; minOrder?: number; maxUses?: number; expiresAt?: string }) =>
+    request<{ promo: any; message: string }>('/api/promos/campaign', { method: 'POST', body: JSON.stringify(body) }),
+
+  setActive: (code: string, active: boolean) =>
+    request<{ promo: any; message: string }>(`/api/promos/${code}/active`, { method: 'PATCH', body: JSON.stringify({ active }) }),
+};
+
 export const userMgmtAPI = {
   list: (params: { role?: string; status?: string; region?: string; district?: string; search?: string; page?: number; limit?: number } = {}) =>
     request<{ users: any[]; total: number; page: number; limit: number; assignableRoles: string[] }>(

@@ -517,6 +517,7 @@ function SellerQuickActions() {
     { href: '/stores/manage', icon: '🏪', label: 'My stores', desc: 'Logo, banner, payouts' },
     { href: '/sell', icon: '➕', label: 'New listing', desc: 'Add a product' },
     { href: '/seller/promotions', icon: '🎁', label: 'Promotions', desc: 'Discounts & deals' },
+    { href: '/advertise', icon: '📣', label: 'Advertise', desc: 'Promote products' },
     { href: '/wallet', icon: '💰', label: 'Wallet', desc: 'Earnings & commission' },
     { href: '/messages', icon: '💬', label: 'Messages', desc: 'Buyers & riders' },
     { href: '/ai-console', icon: '🤖', label: 'AI Console', desc: 'Smart tools' },

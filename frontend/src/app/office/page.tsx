@@ -86,6 +86,15 @@ export default function OfficePage() {
   const jurisdiction = me.district || me.region || 'Ghana · National';
   const overdue = summary.overdue || 0;
 
+  // A department-tuned accent so each office feels distinct at a glance.
+  const DEPT_ACCENT: Record<string, string> = {
+    exec: 'amber', finance: 'amber', logistics: 'amber', compliance: 'emerald',
+    district: 'emerald', regional: 'indigo', commerce: 'indigo', hr: 'sky',
+    security: 'rose', ai: 'violet', sme: 'indigo', bizdev: 'violet', crm: 'sky',
+    operations: 'indigo', field: 'amber', legal: 'slate', intl: 'emerald',
+  };
+  const accent = DEPT_ACCENT[profile.department || ''] || 'indigo';
+
   return (
     <DashPage>
       <DashHeader
@@ -93,7 +102,7 @@ export default function OfficePage() {
         title={`${profile.title} Office`}
         subtitle={officeTagline(profile.department)}
         icon={profile.theme?.glyph || '🏛️'}
-        accent="indigo"
+        accent={accent}
         actions={
           <>
             <HeaderAction href="/dashboard">← Dashboard</HeaderAction>

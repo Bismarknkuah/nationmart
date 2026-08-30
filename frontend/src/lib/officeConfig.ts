@@ -48,6 +48,7 @@ const DEPT_SECTIONS: Partial<Record<DepartmentId, OfficeSection[]>> = {
         { id: 'command-center', label: 'Command Center', desc: 'Officer directory, audit trail & oversight.', glyph: '🛰️', href: '/admin/command-center' },
         { id: 'operations', label: 'National Operations', desc: 'Cross-department operational view.', glyph: '📊', href: '/admin/operations' },
         { id: 'control', label: 'Control Center', desc: 'Platform-wide controls & approvals.', glyph: '🎛️', href: '/admin/control' },
+        { id: 'payments', label: 'Payment Management', desc: 'Revenue, escrow & payouts.', glyph: '💰', href: '/admin/payments' },
         { id: 'security', label: 'Security & Fraud', desc: 'Trust, fraud signals & incidents.', glyph: '🔐', href: '/admin/security' },
       ],
     },
@@ -55,6 +56,8 @@ const DEPT_SECTIONS: Partial<Record<DepartmentId, OfficeSection[]>> = {
       id: 'people-money', title: 'People & money',
       actions: [
         { id: 'users', label: 'User Management', desc: 'Add, edit, reassign & suspend accounts.', glyph: '👥', href: '/admin/users' },
+        { id: 'promotions', label: 'Promotions & Discounts', desc: 'Run platform promo campaigns.', glyph: '🏷️', href: '/admin/promotions' },
+        { id: 'ads', label: 'Ad Management', desc: 'All campaigns & ad revenue.', glyph: '📣', href: '/admin/ads' },
         { id: 'hr', label: 'HR Office', desc: 'Staff, recruitment & payroll.', glyph: '🧑‍💼', href: '/hr' },
         { id: 'admin', label: 'Admin Console', desc: 'Users, approvals, licenses.', glyph: '🛠️', href: '/admin' },
       ],
@@ -64,8 +67,8 @@ const DEPT_SECTIONS: Partial<Record<DepartmentId, OfficeSection[]>> = {
     {
       id: 'finance', title: 'Finance operations',
       actions: [
-        { id: 'operations', label: 'Finance Office', desc: 'Wallets, escrow, settlements & payouts.', glyph: '💰', href: '/admin/operations' },
-        { id: 'payouts', label: 'Payouts in flight', desc: 'Money out of wallets, not yet landed.', glyph: '✈️', href: '/admin/operations' },
+        { id: 'payments', label: 'Payment Management', desc: 'Revenue, escrow, payouts & every transaction.', glyph: '💰', href: '/admin/payments' },
+        { id: 'operations', label: 'Finance Office', desc: 'Wallets, escrow, settlements & payouts.', glyph: '🏦', href: '/admin/operations' },
         { id: 'disputes', label: 'Refund oversight', desc: 'Disputes affecting settlements.', glyph: '⚖️', href: '/dashboard' },
       ],
     },
@@ -159,7 +162,8 @@ const DEPT_SECTIONS: Partial<Record<DepartmentId, OfficeSection[]>> = {
     {
       id: 'bizdev', title: 'Business development',
       actions: [
-        { id: 'promotions', label: 'Growth Tools', desc: 'Promotions & seller growth.', glyph: '📈', href: '/promotions' },
+        { id: 'promotions', label: 'Promotions & Discounts', desc: 'Run platform promo campaigns.', glyph: '🏷️', href: '/admin/promotions' },
+        { id: 'ads', label: 'Ad Management', desc: 'All ad campaigns & ad revenue.', glyph: '📣', href: '/admin/ads' },
         { id: 'stores', label: 'Seller Directory', desc: 'New business pipeline.', glyph: '🏪', href: '/stores' },
       ],
     },

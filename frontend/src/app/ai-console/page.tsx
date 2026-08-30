@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { aiAPI, authAPI, isLoggedIn } from '../../lib/api';
+import { getRoleProfile } from '../../lib/roleConfig';
 
 const GOLD = '#C8A24B', GOLD_DK = '#9A7A2E', GOLD_LT = '#E7CB77';
 const EXEC_ROLES = ['admin', 'ceo', 'coo', 'cto', 'cio', 'cfo', 'chro'];
@@ -55,7 +56,9 @@ export default function AiConsolePage() {
     (async () => {
       try {
         const r = await authAPI.me(); const u = r.user || r; setMe(u);
-        const exec = EXEC_ROLES.includes(u.role) || (u.accessLevel && u.accessLevel <= 2);
+        // Executives and senior officers (level 1–2) get the FAQ/teaching tools.
+        const prof = getRoleProfile(u.role);
+        const exec = EXEC_ROLES.includes(u.role) || prof.level <= 2 || (u.accessLevel && u.accessLevel <= 2);
         setAllowed(true); // every signed-in user can open the console (scoped below)
         aiAPI.status().then(setAiStat).catch(() => {});
         if (exec) loadFaqs();

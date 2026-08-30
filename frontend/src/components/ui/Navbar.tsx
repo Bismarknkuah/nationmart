@@ -81,7 +81,7 @@ export default function Navbar() {
   const [notifications, setNotifications] = useState<any[]>([]);
 
   // Roles that should see the "Sell" + dashboard seller bits
-  const isSeller = ['seller', 'reseller', 'manufacturer'].includes(userRole);
+  const isSeller = ['seller', 'reseller', 'wholesaler', 'manufacturer', 'service_provider', 'corporate_seller'].includes(userRole);
   // Anyone in the administrative hierarchy (L1-L4) sees the Admin Console link.
   const ADMIN_ROLES = new Set([
     'admin', 'district_admin', 'region_admin',
@@ -337,6 +337,7 @@ export default function Navbar() {
                       <Link href="/dashboard" className="block px-4 py-2.5 text-sm text-slate-700 hover:bg-slate-50">Dashboard</Link>
                       {isOfficer && <Link href="/office" className="block px-4 py-2.5 text-sm text-indigo-700 font-semibold hover:bg-indigo-50">🏛️ My Office</Link>}
                       {isSeller && <Link href="/stores/manage" className="block px-4 py-2.5 text-sm text-slate-700 hover:bg-slate-50">My Stores</Link>}
+                      {isSeller && <Link href="/advertise" className="block px-4 py-2.5 text-sm text-slate-700 hover:bg-slate-50">📣 Advertise</Link>}
                       {isSeller && <Link href="/sell" className="block px-4 py-2.5 text-sm text-slate-700 hover:bg-slate-50">Add a Listing</Link>}
                       <Link href="/messages" className="block px-4 py-2.5 text-sm text-slate-700 hover:bg-slate-50">Messages</Link>
                       {isAdmin && (

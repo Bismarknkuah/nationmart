@@ -4,6 +4,8 @@ import { aiAssist, createReport, forwardReport, compileReports, inbox, reviewRep
 import {
   listSalaryStructure, upsertSalaryStructure, payOfficer, listSalaryPayments,
   financialSummary, aiMonthlyAnalysis, bulkPayOfficers,
+  overview as financeOverviewH, integrity as financeIntegrityH,
+  paymentsOverview, paymentsFeed,
 } from '../controllers/financeController';
 
 const router = Router();
@@ -25,5 +27,11 @@ router.post('/finance/pay/bulk', bulkPayOfficers);
 router.get('/finance/payments', listSalaryPayments);
 router.get('/finance/summary', financialSummary);
 router.get('/finance/ai-analysis', aiMonthlyAnalysis);
+
+// Payment management console
+router.get('/finance/overview', financeOverviewH);
+router.get('/finance/integrity', financeIntegrityH);
+router.get('/finance/payments/overview', paymentsOverview);
+router.get('/finance/payments/transactions', paymentsFeed);
 
 export default router;

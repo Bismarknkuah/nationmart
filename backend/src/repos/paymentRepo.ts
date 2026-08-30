@@ -237,3 +237,104 @@ export function publicPayment(p: any) {
 }
 
 export { postWalletTxnOnce };
+
+// ─── Payment management console ──────────────────────────────────────────────
+
+/**
+ * The money dashboard for finance/exec: what the platform has earned, what's
+ * held in escrow, what's owed out, and what's in flight. Read-only and derived
+ * entirely from the ledger and payments table, so it can never itself move money.
+ */
+export async function paymentOverview() {
+  const [row] = await q<any>(
+    `SELECT
+       COALESCE(SUM(amount) FILTER (WHERE status = 'paid' AND purpose = 'order'), 0)   AS gmv,
+       COALESCE(SUM(amount) FILTER (WHERE status = 'paid'), 0)                          AS total_in,
+       COALESCE(SUM(amount) FILTER (WHERE status = 'refunded'), 0)                      AS refunded,
+       COALESCE(SUM(amount) FILTER (WHERE escrow_state = 'held'), 0)                    AS escrow_held,
+       count(*) FILTER (WHERE status = 'paid')                                          AS paid_count,
+       count(*) FILTER (WHERE status = 'pending')                                       AS pending_count,
+       count(*) FILTER (WHERE status = 'failed')                                        AS failed_count,
+       count(*) FILTER (WHERE status = 'refunded')                                      AS refunded_count
+     FROM payments`,
+  );
+
+  // Commission the platform earned. It's booked as a 'commission' debit on the
+  // seller's wallet at settlement (the seller keeps sale-minus-commission), so
+  // the sum of those debits is exactly what the platform took.
+  const [comm] = await q<any>(
+    `SELECT COALESCE(SUM(amount), 0) AS commission
+       FROM wallet_transactions
+      WHERE category = 'commission' AND type = 'debit'`,
+  );
+
+  // Payouts in flight and completed.
+  const [pay] = await q<any>(
+    `SELECT
+       COALESCE(SUM(amount) FILTER (WHERE status IN ('pending','processing')), 0) AS in_flight_value,
+       count(*) FILTER (WHERE status IN ('pending','processing'))                 AS in_flight_count,
+       COALESCE(SUM(amount) FILTER (WHERE status = 'paid'), 0)                    AS paid_out,
+       count(*) FILTER (WHERE status = 'failed')                                  AS failed_payouts
+     FROM payouts`,
+  );
+
+  // Channel split for paid payments.
+  const channels = await q<any>(
+    `SELECT COALESCE(channel, 'unknown') AS channel, count(*) AS n,
+            COALESCE(SUM(amount), 0) AS value
+       FROM payments WHERE status = 'paid'
+      GROUP BY channel ORDER BY value DESC`,
+  );
+
+  return {
+    gmv: Number(row.gmv),
+    totalIn: Number(row.total_in),
+    commissionEarned: Number(comm.commission),
+    refunded: Number(row.refunded),
+    escrowHeld: Number(row.escrow_held),
+    payouts: {
+      inFlightValue: Number(pay.in_flight_value),
+      inFlightCount: Number(pay.in_flight_count),
+      paidOut: Number(pay.paid_out),
+      failed: Number(pay.failed_payouts),
+    },
+    counts: {
+      paid: Number(row.paid_count),
+      pending: Number(row.pending_count),
+      failed: Number(row.failed_count),
+      refunded: Number(row.refunded_count),
+    },
+    channels: channels.map((c) => ({ channel: c.channel, count: Number(c.n), value: Number(c.value) })),
+  };
+}
+
+/** Recent payments, newest first, for the transaction feed. */
+export async function recentTransactions(opts: { status?: string; limit?: number } = {}) {
+  const limit = Math.min(Number(opts.limit) || 30, 100);
+  const rows = await q<any>(
+    `SELECT p.reference, p.provider_ref, p.purpose, p.status, p.escrow_state,
+            p.amount, p.currency, p.channel, p.created_at, p.settled_at,
+            o.order_number, u.full_name AS payer_name
+       FROM payments p
+       LEFT JOIN orders o ON o.id = p.order_id
+       LEFT JOIN users u ON u.id = p.user_id
+      WHERE ($1::text IS NULL OR p.status::text = $1)
+      ORDER BY p.created_at DESC
+      LIMIT $2`,
+    [opts.status ?? null, limit],
+  );
+  return rows.map((r) => ({
+    reference: r.reference,
+    providerRef: r.provider_ref,
+    purpose: r.purpose,
+    status: r.status,
+    escrowState: r.escrow_state,
+    amount: Number(r.amount),
+    currency: r.currency,
+    channel: r.channel,
+    orderNumber: r.order_number,
+    payerName: r.payer_name,
+    createdAt: r.created_at,
+    settledAt: r.settled_at,
+  }));
+}

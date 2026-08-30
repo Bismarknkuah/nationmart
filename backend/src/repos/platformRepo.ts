@@ -147,6 +147,66 @@ export const promos = {
     );
     return rows.length > 0;
   },
+
+  async setActive(code: string, active: boolean) {
+    const rows = await q<any>(
+      `UPDATE promo_codes SET active = $2 WHERE code = $1 RETURNING *`,
+      [code.toUpperCase().trim(), active],
+    );
+    return rows[0] ?? null;
+  },
+
+  /**
+   * The management view: every promo with how much of it is used and whether
+   * it's live, plus headline counts. Optionally scoped platform-wide (store_id
+   * null) so an exec sees the campaigns they run, not every seller's codes.
+   */
+  async overview(opts: { platformOnly?: boolean } = {}) {
+    const where = opts.platformOnly ? 'WHERE p.store_id IS NULL' : '';
+    const rows = await q<any>(
+      `SELECT p.*, s.name AS store_name,
+              (p.active
+                AND p.starts_at <= now()
+                AND (p.expires_at IS NULL OR p.expires_at > now())
+                AND (p.max_uses IS NULL OR p.used_count < p.max_uses)) AS is_live,
+              CASE WHEN p.max_uses IS NULL THEN NULL
+                   ELSE ROUND(p.used_count::numeric / NULLIF(p.max_uses,0) * 100, 0)
+              END AS usage_percent
+         FROM promo_codes p
+         LEFT JOIN stores s ON s.id = p.store_id
+         ${where}
+        ORDER BY p.created_at DESC
+        LIMIT 200`,
+    );
+
+    const live = rows.filter((r) => r.is_live).length;
+    const totalRedemptions = rows.reduce((sum, r) => sum + Number(r.used_count), 0);
+
+    return {
+      promos: rows.map((r) => ({
+        code: r.code,
+        scope: r.store_id ? 'store' : 'platform',
+        storeName: r.store_name,
+        discount: r.discount_percent != null ? `${r.discount_percent}%` : `₵${Number(r.discount_amount)}`,
+        discountPercent: r.discount_percent,
+        discountAmount: r.discount_amount != null ? Number(r.discount_amount) : null,
+        minOrder: Number(r.min_order),
+        maxUses: r.max_uses,
+        usedCount: Number(r.used_count),
+        usagePercent: r.usage_percent != null ? Number(r.usage_percent) : null,
+        startsAt: r.starts_at,
+        expiresAt: r.expires_at,
+        active: r.active,
+        isLive: r.is_live,
+        createdAt: r.created_at,
+      })),
+      summary: {
+        total: rows.length,
+        live,
+        redemptions: totalRedemptions,
+      },
+    };
+  },
 };
 
 // ─── Abuse / fraud reports ───────────────────────────────────────────────────
