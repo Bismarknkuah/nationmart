@@ -825,6 +825,18 @@ export const deliveryAPI = {
       '/api/deliveries/mine'
     ),
 
+  // Active jobs grouped by destination buyer — multi-store orders in one run.
+  batches: () =>
+    request<{
+      batches: {
+        buyerId: string; buyerName: string; buyerPhone: string;
+        dropoff: { address: string; region: string; district: string; lat: number; lng: number };
+        pickups: { deliveryId: string; trackingNumber: string; orderNumber: string; storeName: string; sellerName: string; status: string; pickupRegion: string; pickupDistrict: string; pickupLat: number; pickupLng: number; weightKg: number; fee: number }[];
+        totalFee: number; parcels: number; multiStore: boolean;
+      }[];
+      totalBatches: number; multiStoreBatches: number; totalParcels: number;
+    }>('/api/deliveries/batches'),
+
   stats: () =>
     request<{ counts: Record<string, number>; active: number; total: number; unassigned: number }>(
       '/api/deliveries/stats'

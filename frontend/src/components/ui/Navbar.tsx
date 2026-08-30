@@ -3,6 +3,7 @@ import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { cartCount, onCartChange } from '../../lib/cart';
+import { personaForRole } from '../../lib/roleConfig';
 
 // ─── Currency store (module-scoped, in-memory) ───────────────────────────────
 export type Currency = 'GHS' | 'USD';
@@ -99,6 +100,9 @@ export default function Navbar() {
     'district_sme_officer',
   ]);
   const isAdmin = ADMIN_ROLES.has(userRole);
+  // Any officer/executive role gets a "My Office" entry, regardless of the exact
+  // title — driven by the same persona logic the dashboard uses.
+  const isOfficer = !!userRole && personaForRole(userRole) === 'officer';
 
   useEffect(() => {
     const token = typeof window !== 'undefined' ? localStorage.getItem('wt_token') : null;
@@ -331,6 +335,7 @@ export default function Navbar() {
                         <p className="text-xs text-slate-500 capitalize">{userRole.replace('_', ' ') || 'Account'}</p>
                       </div>
                       <Link href="/dashboard" className="block px-4 py-2.5 text-sm text-slate-700 hover:bg-slate-50">Dashboard</Link>
+                      {isOfficer && <Link href="/office" className="block px-4 py-2.5 text-sm text-indigo-700 font-semibold hover:bg-indigo-50">🏛️ My Office</Link>}
                       {isSeller && <Link href="/stores/manage" className="block px-4 py-2.5 text-sm text-slate-700 hover:bg-slate-50">My Stores</Link>}
                       {isSeller && <Link href="/sell" className="block px-4 py-2.5 text-sm text-slate-700 hover:bg-slate-50">Add a Listing</Link>}
                       <Link href="/messages" className="block px-4 py-2.5 text-sm text-slate-700 hover:bg-slate-50">Messages</Link>

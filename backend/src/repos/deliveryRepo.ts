@@ -357,6 +357,89 @@ export async function getEvents(deliveryId: string) {
 }
 
 /** A rider's jobs plus their earnings summary. */
+/**
+ * A rider's active work, grouped into BATCHES by destination buyer.
+ *
+ * A buyer who orders from three different stores creates three separate orders
+ * (one seller each) and therefore three deliveries — but they all go to the same
+ * person. Without grouping, a rider sees three unrelated jobs and criss-crosses
+ * town. This groups them so the rider sees: "these 3 parcels go to Ama — collect
+ * from Kofi's shop, Yaa's shop and the timber yard, then drop all three at her
+ * place." Every pickup point is listed, in one batch, with a combined fee.
+ */
+export async function riderBatches(riderId: string) {
+  const rows = await q<any>(
+    `SELECT d.*, o.order_number,
+            b.full_name AS buyer_name, b.phone AS buyer_phone,
+            s.name AS store_name,
+            se.full_name AS seller_name
+       FROM deliveries d
+       JOIN orders o ON o.id = d.order_id
+       LEFT JOIN users b  ON b.id = d.buyer_id
+       LEFT JOIN users se ON se.id = d.seller_id
+       LEFT JOIN stores s ON s.id = o.store_id
+      WHERE d.rider_id = $1::uuid
+        AND d.status IN ('assigned','accepted','picked_up','in_transit')
+      ORDER BY d.buyer_id, d.created_at ASC`,
+    [riderId],
+  );
+
+  // Group by buyer.
+  const byBuyer = new Map<string, any>();
+  for (const d of rows) {
+    const key = d.buyer_id || d.id;
+    if (!byBuyer.has(key)) {
+      byBuyer.set(key, {
+        buyerId: d.buyer_id,
+        buyerName: d.buyer_name,
+        buyerPhone: d.buyer_phone,
+        dropoff: {
+          address: d.dropoff_address,
+          region: d.dropoff_region,
+          district: d.dropoff_district,
+          lat: d.dropoff_lat,
+          lng: d.dropoff_lng,
+        },
+        pickups: [],
+        totalFee: 0,
+        parcels: 0,
+      });
+    }
+    const batch = byBuyer.get(key);
+    batch.pickups.push({
+      deliveryId: d.id,
+      trackingNumber: d.tracking_number,
+      orderNumber: d.order_number,
+      storeName: d.store_name || d.seller_name || 'Store',
+      sellerName: d.seller_name,
+      status: d.status,
+      pickupRegion: d.pickup_region,
+      pickupDistrict: d.pickup_district,
+      pickupLat: d.pickup_lat,
+      pickupLng: d.pickup_lng,
+      weightKg: Number(d.parcel_weight_kg || 0),
+      fee: Number(d.fee || 0),
+    });
+    batch.totalFee += Number(d.fee || 0);
+    batch.parcels += 1;
+  }
+
+  const batches = Array.from(byBuyer.values()).map((b) => ({
+    ...b,
+    multiStore: b.pickups.length > 1,   // the flag the rider UI highlights
+  }));
+
+  // Multi-store batches first — they're the ones worth planning a route for.
+  batches.sort((a, b) => Number(b.multiStore) - Number(a.multiStore) || b.parcels - a.parcels);
+
+  return {
+    batches,
+    totalBatches: batches.length,
+    multiStoreBatches: batches.filter((b) => b.multiStore).length,
+    totalParcels: rows.length,
+  };
+}
+
 export async function myDeliveries(riderId: string) {
   const deliveries = await q<any>(
     `SELECT d.*, o.order_number

@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { authAPI, deliveryAPI, walletAPI, isLoggedIn } from '../../../lib/api';
 import PaymentsOffice from '../../../components/PaymentsOffice';
+import RiderRuns from '../../../components/RiderRuns';
 import { DashPage, DashHeader, HeaderAction, StatGrid, Stat, Panel, Empty } from '../../../components/ui/Dash';
 
 const RIDER_RX = /rider|driver|dispatch_rider|courier/i;
@@ -94,6 +95,9 @@ export default function RiderOffice() {
             <p className="text-sm text-slate-600">Balance: <span className="font-semibold text-emerald-700">₵{balance.toLocaleString()}</span> — you're clear to accept jobs.</p>
           )}
         </Panel>
+
+        {/* Grouped delivery runs — multi-store orders collected in one trip */}
+        <RiderRuns accent="#0f766e" />
 
         {/* Payout methods + withdraw earnings */}
         <PaymentsOffice canWithdraw accent="#0f766e" />

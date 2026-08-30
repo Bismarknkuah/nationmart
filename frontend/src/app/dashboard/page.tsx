@@ -12,6 +12,7 @@ import AssistantChatbot from '../../components/AssistantChatbot';
 import OrderTracker from '../../components/ui/OrderTracker';
 import PaymentsOffice from '../../components/PaymentsOffice';
 import DisputesPanel from '../../components/DisputesPanel';
+import GettingStarted from '../../components/GettingStarted';
 import PanelBoundary from '../../components/PanelBoundary';
 import { addToCart } from '../../lib/cart';
 import { getSaved, removeSaved, onSavedChange } from '../../lib/saved';
@@ -1536,6 +1537,94 @@ function RoleHomeButton({ role }: { role: string }) {
   );
 }
 
+/**
+ * ExecutiveCommand — the level-1 executive's unique national command view.
+ *
+ * Only the CEO and C-suite see this, rendered above the standard console. It
+ * pulls real national figures (GMV, orders, users, deliveries, escrow) and a
+ * 7-day trend, and frames department health so an executive can see the whole
+ * platform at a glance and drill into any office. This is what makes the exec
+ * dashboard distinct from an officer's task desk.
+ */
+function ExecutiveCommand({ profile }: { profile: RoleProfile }) {
+  const [s, setS] = useState<any>(null);
+  const [err, setErr] = useState('');
+
+  useEffect(() => {
+    managementAPI.platformStats()
+      .then((r: any) => setS(r))
+      .catch((e: any) => setErr(e.message || ''));
+  }, []);
+
+  const money = (n: number) => `₵${Number(n || 0).toLocaleString()}`;
+  const trend = Array.isArray(s?.trend) ? s.trend : [];
+  const bars = trend.map((t: any) => ({
+    label: new Date(t.day).toLocaleDateString('en', { weekday: 'short' }).slice(0, 2),
+    value: Number(t.revenue || 0),
+  }));
+
+  const deliverySuccess = s && s.deliveries > 0
+    ? Math.round((s.delivered / s.deliveries) * 100) : 0;
+
+  return (
+    <div className="mb-6 rounded-2xl overflow-hidden border border-amber-200/60 shadow-sm">
+      <div className="bg-gradient-to-br from-[#1a1505] via-[#241b08] to-[#0f0c02] px-6 py-5">
+        <div className="flex items-center justify-between flex-wrap gap-3">
+          <div>
+            <p className="text-[11px] font-bold tracking-[0.2em] uppercase" style={{ color: GOLD_LT }}>National Command</p>
+            <h2 className="text-xl font-bold text-white mt-0.5">The platform, right now</h2>
+          </div>
+          <div className="flex gap-2 flex-wrap">
+            <Link href="/admin/command-center" className="text-xs font-bold px-3 py-1.5 rounded-lg" style={{ background: GOLD, color: '#1a1505' }}>🛰️ Command Center</Link>
+            <Link href="/admin/operations" className="text-xs font-semibold px-3 py-1.5 rounded-lg border border-white/25 text-white">📊 Operations</Link>
+          </div>
+        </div>
+
+        {err && <p className="text-xs text-red-300 mt-3">{err}</p>}
+
+        {!s ? (
+          <p className="text-white/50 text-sm mt-4">Loading national figures…</p>
+        ) : (
+          <>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mt-4">
+              {[
+                { label: 'Paid GMV', value: money(s.gmv), sub: `${s.paidOrders?.toLocaleString?.() || 0} paid orders` },
+                { label: 'Users', value: (s.users || 0).toLocaleString(), sub: `${s.sellers || 0} sellers · ${s.riders || 0} riders` },
+                { label: 'Active stores', value: (s.stores || 0).toLocaleString(), sub: `${s.products || 0} listings` },
+                { label: 'Escrow held', value: money(s.owedToUsers), sub: `${deliverySuccess}% delivery success` },
+              ].map((c) => (
+                <div key={c.label} className="rounded-xl bg-white/5 border border-white/10 p-3">
+                  <p className="text-[10px] uppercase tracking-wide text-white/45">{c.label}</p>
+                  <p className="text-lg font-bold text-white mt-0.5" style={{ color: GOLD_LT }}>{c.value}</p>
+                  <p className="text-[11px] text-white/50 mt-0.5">{c.sub}</p>
+                </div>
+              ))}
+            </div>
+
+            {bars.length > 0 && (
+              <div className="mt-4 rounded-xl bg-white/5 border border-white/10 p-4">
+                <p className="text-[11px] uppercase tracking-wide text-white/45 mb-3">Revenue · last 7 days</p>
+                <div className="flex items-end justify-between gap-2 h-24">
+                  {bars.map((b: any, i: number) => {
+                    const max = Math.max(1, ...bars.map((x: any) => x.value));
+                    return (
+                      <div key={i} className="flex-1 flex flex-col items-center gap-1">
+                        <div className="w-full rounded-t" style={{ height: `${Math.max(4, (b.value / max) * 72)}px`, background: GOLD, opacity: 0.85 }} title={money(b.value)} />
+                        <span className="text-[10px] text-white/40">{b.label}</span>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+          </>
+        )}
+      </div>
+    </div>
+  );
+}
+
+
 function OfficerConsole({ me, profile, notifs }: { me: any; profile: RoleProfile; notifs: any[] }) {
   const theme = profile.theme!;
   const DEPT_ACCENT: Record<string, string> = {
@@ -1550,6 +1639,8 @@ function OfficerConsole({ me, profile, notifs }: { me: any; profile: RoleProfile
   const isLogisticsManager = LOGISTICS_MANAGER_ROLES.includes(profile.role);
   const premium = !isPartner && profile.level <= 2;  // execs + national directorate get the gold treatment
   const isAdminTier = ['admin', 'district_admin'].includes(profile.role);
+  // The true executive tier (CEO + C-suite) gets a unique national command view.
+  const isExec = ['ceo', 'coo', 'cto', 'cio', 'cfo', 'chro', 'admin', 'super_admin'].includes(profile.role) || profile.level === 1;
 
   const [items, setItems] = useState<any[]>([]);
   const [summary, setSummary] = useState<any>({ total: 0, overdue: 0, critical: 0, high: 0 });
@@ -1646,6 +1737,7 @@ function OfficerConsole({ me, profile, notifs }: { me: any; profile: RoleProfile
               </div>
             </div>
             <div className="flex items-center gap-2 flex-wrap">
+              <Link href="/office" className="text-sm font-bold px-4 py-2 rounded-lg border shadow-sm" style={{ background: GOLD, borderColor: GOLD, color: '#1a1505' }}>🏛️ My Office</Link>
               {['admin', 'ceo', 'coo', 'chro', 'national_hr_director'].includes(profile.role) && (
                 <Link href="/hr" className="text-sm font-semibold px-4 py-2 rounded-lg border" style={{ background: 'rgba(56,189,248,0.22)', borderColor: 'rgba(56,189,248,0.5)', color: '#fff' }}>👥 HR Office</Link>
               )}
@@ -1664,6 +1756,8 @@ function OfficerConsole({ me, profile, notifs }: { me: any; profile: RoleProfile
               </Link>
             </div>
           </div>
+
+          {isExec && <PanelBoundary name="exec-command" fallback={null}><ExecutiveCommand profile={profile} /></PanelBoundary>}
 
           {/* Summary tiles */}
           <div className="relative z-10 grid grid-cols-2 md:grid-cols-4 gap-3 mt-6">
@@ -1874,6 +1968,9 @@ function CommerceDashboard({
         </div>
 
         {isSeller && <SellerQuickActions />}
+        <PanelBoundary name="getting-started" fallback={null}>
+          <GettingStarted isSeller={isSeller} productCount={products.length} orderCount={orders.length} storeCount={stores.length} />
+        </PanelBoundary>
         {isSeller && <SellerAnalytics orders={orders} products={products} />}
 
         {subBanner && (

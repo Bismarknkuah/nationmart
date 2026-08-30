@@ -45,6 +45,17 @@ export const myDeliveries = async (req: AuthRequest, res: Response): Promise<voi
 };
 
 /**
+ * GET /api/deliveries/batches
+ * The rider's active jobs, grouped by destination buyer so multi-store orders
+ * are collected in one run instead of three scattered trips.
+ */
+export const myBatches = async (req: AuthRequest, res: Response): Promise<void> => {
+  try {
+    res.json(await del.riderBatches(req.user.id));
+  } catch (err: any) { res.status(500).json({ error: err.message }); }
+};
+
+/**
  * POST /api/deliveries/:id/status
  * The rider advances the job. On 'delivered' this releases the seller's escrow
  * and charges the rider's commission in one transaction. On 'failed' a reason

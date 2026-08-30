@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import { authenticate } from '../middleware/auth';
 import {
-  createForOrder, myDeliveries, updateStatus, ping, byOrder,
+  createForOrder, myDeliveries, myBatches, updateStatus, ping, byOrder,
   recommend, assign, stats, quote,
 } from '../controllers/deliveryController';
 
@@ -13,6 +13,7 @@ router.use(authenticate);
 
 router.post('/from-order/:orderId', createForOrder as any);
 router.get('/mine', myDeliveries as any);
+router.get('/batches', myBatches as any);
 router.get('/stats', stats as any);
 router.get('/by-order/:orderId', byOrder as any);
 router.get('/:id/recommend', recommend as any);
