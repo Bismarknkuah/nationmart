@@ -58,25 +58,34 @@ export default function ExecutiveCenter() {
 }
 
 function OverviewPanel() {
-  const [data, setData] = useState<{ stats: any; trend: any[] } | null>(null);
+  const [s, setS] = useState<any>(null);
   const [loading, setLoading] = useState(true);
-  useEffect(() => { managementAPI.platformStats().then(setData).catch(() => {}).finally(() => setLoading(false)); }, []);
+  const [err, setErr] = useState('');
+  useEffect(() => {
+    managementAPI.platformStats()
+      .then((r: any) => setS(r))
+      .catch((e: any) => setErr(e?.message || 'Could not load stats.'))
+      .finally(() => setLoading(false));
+  }, []);
 
   if (loading) return <p className="text-slate-400 text-sm">Loading platform overview…</p>;
-  if (!data) return <p className="text-slate-400 text-sm">Could not load stats.</p>;
-  const s = data.stats;
-  const money = (n: number) => `GHS ${Math.round(n || 0).toLocaleString()}`;
-  const maxRev = Math.max(1, ...data.trend.map((d) => d.revenue));
+  if (err) return <p className="text-red-500 text-sm">{err}</p>;
+  if (!s) return <p className="text-slate-400 text-sm">Could not load stats.</p>;
+
+  const money = (n: number) => `GHS ${Math.round(Number(n) || 0).toLocaleString()}`;
+  // platformStats() returns a FLAT object; trend is an array of {day,orders,revenue}.
+  const trend: any[] = Array.isArray(s.trend) ? s.trend : [];
+  const maxRev = Math.max(1, ...trend.map((d) => Number(d.revenue) || 0));
 
   const cards = [
-    { label: 'Gross merchandise value', value: money(s.gmv), tone: 'text-emerald-700', sub: `${s.paidCount} paid orders` },
-    { label: 'Total orders', value: (s.orders || 0).toLocaleString(), tone: 'text-indigo-700' },
-    { label: 'Delivery fees (completed)', value: money(s.deliveryFees), tone: 'text-amber-700', sub: `${s.delivered}/${s.deliveries} delivered` },
-    { label: 'Total users', value: (s.users || 0).toLocaleString(), tone: 'text-slate-800', sub: `+${s.newUsers} this week` },
-    { label: 'Buyers', value: (s.buyers || 0).toLocaleString(), tone: 'text-slate-800' },
-    { label: 'Sellers', value: (s.sellers || 0).toLocaleString(), tone: 'text-slate-800' },
-    { label: 'Riders & drivers', value: (s.riders || 0).toLocaleString(), tone: 'text-slate-800' },
-    { label: 'Stores · live products', value: `${(s.stores || 0).toLocaleString()} · ${(s.products || 0).toLocaleString()}`, tone: 'text-slate-800' },
+    { label: 'Gross merchandise value', value: money(s.gmv), tone: 'text-emerald-700', sub: `${Number(s.paidOrders || 0).toLocaleString()} paid orders` },
+    { label: 'Total orders', value: (Number(s.orders) || 0).toLocaleString(), tone: 'text-indigo-700' },
+    { label: 'Deliveries', value: `${Number(s.delivered) || 0}/${Number(s.deliveries) || 0}`, tone: 'text-amber-700', sub: 'delivered / total' },
+    { label: 'Total users', value: (Number(s.users) || 0).toLocaleString(), tone: 'text-slate-800' },
+    { label: 'Buyers', value: (Number(s.buyers) || 0).toLocaleString(), tone: 'text-slate-800' },
+    { label: 'Sellers', value: (Number(s.sellers) || 0).toLocaleString(), tone: 'text-slate-800' },
+    { label: 'Riders & drivers', value: (Number(s.riders) || 0).toLocaleString(), tone: 'text-slate-800' },
+    { label: 'Stores · live products', value: `${(Number(s.stores) || 0).toLocaleString()} · ${(Number(s.products) || 0).toLocaleString()}`, tone: 'text-slate-800' },
   ];
 
   return (
@@ -91,19 +100,21 @@ function OverviewPanel() {
         ))}
       </div>
 
-      <div className="bg-white rounded-2xl border border-slate-200 p-5">
-        <h3 className="font-bold text-slate-900 text-sm mb-3">Last 7 days — orders &amp; revenue</h3>
-        <div className="flex items-end justify-between gap-2 h-32">
-          {data.trend.map((d, i) => (
-            <div key={i} className="flex-1 flex flex-col items-center gap-1">
-              <span className="text-[10px] text-slate-400">{d.orders}</span>
-              <div className="w-full rounded-t bg-indigo-500/80" style={{ height: `${Math.max(4, (d.revenue / maxRev) * 100)}px` }} title={`${money(d.revenue)} · ${d.orders} orders`} />
-              <span className="text-[10px] text-slate-400">{d.label}</span>
-            </div>
-          ))}
+      {trend.length > 0 && (
+        <div className="bg-white rounded-2xl border border-slate-200 p-5">
+          <h3 className="font-bold text-slate-900 text-sm mb-3">Last 7 days — orders &amp; revenue</h3>
+          <div className="flex items-end justify-between gap-2 h-32">
+            {trend.map((d, i) => (
+              <div key={i} className="flex-1 flex flex-col items-center gap-1">
+                <span className="text-[10px] text-slate-400">{d.orders}</span>
+                <div className="w-full rounded-t bg-indigo-500/80" style={{ height: `${Math.max(4, ((Number(d.revenue) || 0) / maxRev) * 100)}px` }} title={`${money(d.revenue)} · ${d.orders} orders`} />
+                <span className="text-[10px] text-slate-400">{d.day ? new Date(d.day).toLocaleDateString('en', { weekday: 'short' }).slice(0, 2) : d.label}</span>
+              </div>
+            ))}
+          </div>
+          <p className="text-[11px] text-slate-400 mt-2">Bar height = paid revenue · number above = orders that day.</p>
         </div>
-        <p className="text-[11px] text-slate-400 mt-2">Bar height = paid revenue · number above = orders that day.</p>
-      </div>
+      )}
 
       <MigratePanel />
     </div>

@@ -47,6 +47,7 @@ const DEPT_SECTIONS: Partial<Record<DepartmentId, OfficeSection[]>> = {
       actions: [
         { id: 'command-center', label: 'Command Center', desc: 'Officer directory, audit trail & oversight.', glyph: '🛰️', href: '/admin/command-center' },
         { id: 'operations', label: 'National Operations', desc: 'Cross-department operational view.', glyph: '📊', href: '/admin/operations' },
+        { id: 'store-types', label: 'Store Categories', desc: 'Add & manage store types.', glyph: '🗂️', href: '/admin/store-types' },
         { id: 'control', label: 'Control Center', desc: 'Platform-wide controls & approvals.', glyph: '🎛️', href: '/admin/control' },
         { id: 'payments', label: 'Payment Management', desc: 'Revenue, escrow & payouts.', glyph: '💰', href: '/admin/payments' },
         { id: 'security', label: 'Security & Fraud', desc: 'Trust, fraud signals & incidents.', glyph: '🔐', href: '/admin/security' },
@@ -117,6 +118,7 @@ const DEPT_SECTIONS: Partial<Record<DepartmentId, OfficeSection[]>> = {
       id: 'commerce', title: 'Commerce oversight',
       actions: [
         { id: 'review', label: 'Store Approvals', desc: 'Verify new stores & sellers.', glyph: '✅', href: '/admin/review' },
+        { id: 'store-types', label: 'Store Categories', desc: 'Add & manage store types.', glyph: '🗂️', href: '/admin/store-types' },
         { id: 'stores', label: 'Store Directory', desc: 'Local business activity.', glyph: '🏪', href: '/stores' },
         { id: 'create-store', label: 'Create Store', desc: 'Onboard a seller directly.', glyph: '➕', href: '/admin/create-store' },
       ],

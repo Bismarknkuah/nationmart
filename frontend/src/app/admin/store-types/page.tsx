@@ -4,8 +4,14 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { authAPI, storeCategoriesAPI, isLoggedIn } from '../../../lib/api';
 import { uploadImage } from '../../../lib/upload';
+import { getRoleProfile } from '../../../lib/roleConfig';
 
-const ADMIN_ROLES = ['admin', 'super_admin', 'ceo', 'coo'];
+// Executive & national tier plus commerce/district admins can manage store types
+// (mirrors the backend). Level-driven so every exec role qualifies.
+function canManageTypes(role: string): boolean {
+  const prof = getRoleProfile(role);
+  return prof.level <= 2 || /commerce|district_admin|region_admin|operations/i.test(role);
+}
 
 type Cat = { _id?: string; value: string; label: string; tagline: string; imageUrl: string; order?: number; active?: boolean };
 
@@ -20,7 +26,7 @@ export default function AdminStoreTypes() {
     if (!isLoggedIn()) { router.push('/auth/login?redirect=/admin/store-types'); return; }
     authAPI.me().then((r) => {
       const u = (r as any).user || r;
-      const ok = ADMIN_ROLES.includes(u.role);
+      const ok = canManageTypes(u.role);
       setAllowed(ok);
       if (ok) load(); else setLoading(false);
     }).catch(() => router.push('/auth/login?redirect=/admin/store-types'));

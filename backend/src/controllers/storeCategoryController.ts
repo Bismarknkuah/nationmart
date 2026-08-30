@@ -1,8 +1,14 @@
 import { Response } from 'express';
 import { AuthRequest } from '../middleware/auth';
 import { storeCategories } from '../repos/platformRepo';
+import { levelOf } from '../services/roleAuthority';
 
-const canManage = (r: string) => /admin|ceo|coo|commerce|operations/i.test(r);
+// Store categories are a platform-shape decision, so the executive & national
+// tier (level 1–2) manage them — plus commerce/district officers who onboard
+// stores day to day. Driven off role level so every exec role qualifies, not a
+// brittle keyword regex.
+const canManage = (r: string) =>
+  levelOf(r) <= 2 || /commerce|district_admin|region_admin|operations/i.test(r);
 
 export const listCategories = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
