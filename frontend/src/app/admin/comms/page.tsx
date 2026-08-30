@@ -87,7 +87,7 @@ export default function OfficerCommsPage() {
     }
   };
 
-  const isExecutive = me?.role && ['ceo', 'coo', 'cto', 'cio', 'cfo', 'chro', 'admin'].includes(me.role);
+  const isExecutive = me?.role && ['ceo', 'coo', 'cto', 'cio', 'cfo', 'chro', 'admin', 'super_admin'].includes(me.role);
 
   return (
     <div className="min-h-screen bg-slate-50 pt-8 pb-16 px-4">

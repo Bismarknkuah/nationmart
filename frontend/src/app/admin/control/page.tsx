@@ -3,8 +3,7 @@ import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { authAPI, managementAPI, isLoggedIn } from '../../../lib/api';
-
-const EXEC_ROLES = ['admin', 'ceo', 'coo', 'cto', 'cio', 'cfo', 'chro', 'national_compliance_director', 'national_security_director'];
+import { getRoleProfile } from '../../../lib/roleConfig';
 
 export default function ExecutiveCenter() {
   const router = useRouter();
@@ -15,7 +14,11 @@ export default function ExecutiveCenter() {
     if (!isLoggedIn()) { router.push('/auth/login?redirect=/admin/control'); return; }
     authAPI.me().then((r) => {
       const u = (r as any).user || r;
-      setAllowed(EXEC_ROLES.includes(u.role));
+      // The control centre is for the executive/national tier. Drive it off the
+      // canonical role level (1 = exec, 2 = national) so super_admin, ceo and
+      // every C-suite/national role qualify — not a brittle hardcoded list.
+      const prof = getRoleProfile(u.role);
+      setAllowed(prof.level <= 2);
     }).catch(() => router.push('/auth/login?redirect=/admin/control'));
   }, [router]);
 

@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import { authAPI, storeCategoriesAPI, isLoggedIn } from '../../../lib/api';
 import { uploadImage } from '../../../lib/upload';
 
-const ADMIN_ROLES = ['admin', 'ceo', 'coo'];
+const ADMIN_ROLES = ['admin', 'super_admin', 'ceo', 'coo'];
 
 type Cat = { _id?: string; value: string; label: string; tagline: string; imageUrl: string; order?: number; active?: boolean };
 

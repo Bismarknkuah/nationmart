@@ -22,7 +22,7 @@ export default function AdminReviewPage() {
   useEffect(() => {
     authAPI.me().then((u: any) => {
       const role = u?.role;
-      if (!['admin', 'district_admin', 'region_admin'].includes(role)) {
+      if (!['admin', 'super_admin', 'district_admin', 'region_admin', 'ceo', 'coo', 'cto', 'cio', 'cfo', 'chro'].includes(role)) {
         router.replace('/dashboard');
         return;
       }

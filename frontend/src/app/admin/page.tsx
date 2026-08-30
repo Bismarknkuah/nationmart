@@ -21,7 +21,7 @@ export default function AdminDashboard() {
   useEffect(() => {
     authAPI.me().then((u: any) => {
       const user = u.user || u;
-      if (!['admin', 'district_admin', 'region_admin'].includes(user.role)) { router.replace('/dashboard'); return; }
+      if (!['admin', 'super_admin', 'district_admin', 'region_admin', 'ceo', 'coo', 'cto', 'cio', 'cfo', 'chro'].includes(user.role)) { router.replace('/dashboard'); return; }
       setMe(user); loadAll();
     }).catch(() => router.replace('/auth/login?redirect=/admin'));
   }, []);
