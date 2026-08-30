@@ -54,7 +54,8 @@ const DEPT_SECTIONS: Partial<Record<DepartmentId, OfficeSection[]>> = {
     {
       id: 'people-money', title: 'People & money',
       actions: [
-        { id: 'hr', label: 'HR Office', desc: 'Staff, recruitment & payroll.', glyph: '👥', href: '/hr' },
+        { id: 'users', label: 'User Management', desc: 'Add, edit, reassign & suspend accounts.', glyph: '👥', href: '/admin/users' },
+        { id: 'hr', label: 'HR Office', desc: 'Staff, recruitment & payroll.', glyph: '🧑‍💼', href: '/hr' },
         { id: 'admin', label: 'Admin Console', desc: 'Users, approvals, licenses.', glyph: '🛠️', href: '/admin' },
       ],
     },
@@ -242,6 +243,7 @@ export function officeForRole(role: string, department: DepartmentId | null, lev
     sections.push({
       id: 'admin', title: 'Administration',
       actions: [
+        { id: 'users', label: 'User Management', desc: 'Add, edit, reassign & suspend accounts.', glyph: '👥', href: '/admin/users' },
         { id: 'admin', label: 'Admin Console', desc: 'Users, approvals, licenses.', glyph: '🛠️', href: '/admin' },
         { id: 'command-center', label: 'Command Center', desc: 'Officer directory & audit trail.', glyph: '🛰️', href: '/admin/command-center' },
       ],

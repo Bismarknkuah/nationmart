@@ -311,6 +311,27 @@ export const licensesAPI = {
 // ═════════════════════════════════════════════════════════════════════════════
 // ADMIN
 // ═════════════════════════════════════════════════════════════════════════════
+export const userMgmtAPI = {
+  list: (params: { role?: string; status?: string; region?: string; district?: string; search?: string; page?: number; limit?: number } = {}) =>
+    request<{ users: any[]; total: number; page: number; limit: number; assignableRoles: string[] }>(
+      `/api/user-management${qs(params)}`),
+
+  create: (body: { fullName: string; email: string; phone: string; password: string; role: string; region?: string; district?: string; address?: string; ghanaCardNumber?: string }) =>
+    request<{ user: any; message: string }>('/api/user-management', { method: 'POST', body: JSON.stringify(body) }),
+
+  update: (id: string, body: { fullName?: string; phone?: string; region?: string; district?: string; address?: string }) =>
+    request<{ user: any }>(`/api/user-management/${id}`, { method: 'PATCH', body: JSON.stringify(body) }),
+
+  changeRole: (id: string, role: string) =>
+    request<{ user: any; message: string }>(`/api/user-management/${id}/role`, { method: 'PATCH', body: JSON.stringify({ role }) }),
+
+  setStatus: (id: string, status: 'active' | 'suspended' | 'flagged') =>
+    request<{ user: any; message: string }>(`/api/user-management/${id}/status`, { method: 'PATCH', body: JSON.stringify({ status }) }),
+
+  resetPassword: (id: string, password: string) =>
+    request<{ message: string }>(`/api/user-management/${id}/reset-password`, { method: 'POST', body: JSON.stringify({ password }) }),
+};
+
 export const adminAPI = {
   stats: () => request<any>('/api/admin/stats'),
 
